@@ -1,0 +1,138 @@
+#!/bin/bash
+
+# Function to display advanced options menu.
+show_advanced_menu() {
+  echo
+  echo "Advanced Options:"
+  echo "1. Create a new branch"
+  echo "2. Switch to an existing branch"
+  echo "3. Merge branches"
+  echo "4. List branches"
+  echo "5. Show Git status"
+  echo "6. Show Git log"
+  echo "7. Stash changes"
+  echo "8. Apply stashed changes"
+  echo "9. View updated repository"
+  echo "10. View changes between commits"
+  echo "11. Exit to main menu"
+  read -p "Enter your choice (1/2/3/4/5/6/7/8/9/10/11): " advanced_choice
+
+  case $advanced_choice in
+    1)
+      read -p "Enter a name for the new branch: " new_branch
+      git checkout -b "$new_branch"
+      echo "Created and switched to branch: $new_branch"
+      ;;
+    2)
+      read -p "Enter the name of the existing branch to switch to: " existing_branch
+      git checkout "$existing_branch"
+      echo "Switched to branch: $existing_branch"
+      ;;
+    3)
+      echo "Branches available for merging:"
+      git branch
+      read -p "Enter the branch to merge into the current branch: " merge_branch
+      git merge "$merge_branch"
+      echo "Merged $merge_branch into the current branch."
+      ;;
+    4)
+      git branch
+      ;;
+    5)
+      git status
+      ;;
+    6)
+      git log
+      ;;
+    7)
+      git stash
+      echo "Changes stashed."
+      ;;
+    8)
+      git stash list
+      read -p "Enter the stash reference to apply: " stash_ref
+      git stash apply "$stash_ref"
+      echo "Stashed changes applied."
+      ;;
+    9)
+      git log --graph --oneline --all --decorate
+      ;;
+    10)
+      read -p "Enter the commit SHA or reference (e.g., HEAD~2, master): " commit_ref
+      git diff "$commit_ref"
+      ;;
+    11)
+      return
+      ;;
+    *)
+      echo "Invalid choice."
+      ;;
+  esac
+
+  # Show the advanced options menu again.
+  show_advanced_menu
+}
+
+# Main menu loop.
+while true; do
+  echo
+  echo "Main Menu:"
+  echo "1. Initialize a Git repository"
+  echo "2. Add new files"
+  echo "3. Commit changes"
+  echo "4. Push to remote (if configured)"
+  echo "5. Clone a remote repository"
+  echo "6. Configure Git user"
+  echo "7. Advanced Options"
+  echo "8. Exit"
+
+  read -p "Enter your choice (1/2/3/4/5/6/7/8): " choice
+
+  case $choice in
+    1)
+      git init
+      echo "Git repository initialized."
+      ;;
+    2)
+      git add .
+      echo "Files added to the staging area."
+      ;;
+    3)
+      if [[ -n $(git status -s) ]]; then
+        read -p "Enter a commit message: " commit_message
+        git commit -m "$commit_message"
+        echo "Changes committed."
+      else
+        echo "No changes to commit."
+      fi
+      ;;
+    4)
+      read -p "Enter remote repository (e.g., origin): " remote
+      read -p "Enter branch (e.g., master): " branch
+      git push "$remote" "$branch"
+      echo "Changes pushed to $remote/$branch."
+      ;;
+    5)
+      read -p "Enter the URL of the remote repository to clone: " clone_url
+      git clone "$clone_url"
+      echo "Repository cloned."
+      ;;
+    6)
+      read -p "Enter your name for Git configuration: " git_name
+      read -p "Enter your email for Git configuration: " git_email
+      git config --global user.name "$git_name"
+      git config --global user.email "$git_email"
+      echo "Git user configured with name: $git_name and email: $git_email"
+      ;;
+    7)
+      show_advanced_menu
+      ;;
+    8)
+      echo "Exiting."
+      exit 0
+      ;;
+    *)
+      echo "Invalid choice."
+      ;;
+  esac
+done
